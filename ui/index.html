@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Traffic System — Signal &amp; Ambulance Priority</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="atmosphere" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand-block">
+      <p class="brand">Traffic System</p>
+      <p class="brand-sub">Smart Signal &amp; Ambulance Priority</p>
+    </div>
+    <div class="top-stats" aria-live="polite">
+      <div class="stat">
+        <span class="stat-label">Intersections</span>
+        <span class="stat-value" id="stat-vertices">0</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Roads</span>
+        <span class="stat-value" id="stat-edges">0</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Blocked</span>
+        <span class="stat-value" id="stat-blocked">0</span>
+      </div>
+    </div>
+    <div class="signal-legend" aria-hidden="true">
+      <span class="lamp red"></span>
+      <span class="lamp amber"></span>
+      <span class="lamp green"></span>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <aside class="panel panel-controls">
+      <section class="section">
+        <h2>Build network</h2>
+        <form id="form-intersection" class="stack">
+          <label>
+            Intersection name
+            <input type="text" id="input-name" maxlength="63" placeholder="e.g. Main &amp; 5th" required autocomplete="off" />
+          </label>
+          <button type="submit" class="btn btn-primary">Add intersection</button>
+        </form>
+
+        <form id="form-road" class="stack">
+          <label>
+            From
+            <select id="road-from" required></select>
+          </label>
+          <label>
+            To
+            <select id="road-to" required></select>
+          </label>
+          <label>
+            Travel time (minutes)
+            <input type="number" id="road-weight" min="0.01" step="0.1" value="5" required />
+          </label>
+          <label class="check">
+            <input type="checkbox" id="road-bidir" checked />
+            Bidirectional road
+          </label>
+          <button type="submit" class="btn btn-primary">Add road</button>
+        </form>
+      </section>
+
+      <section class="section">
+        <h2>Traffic &amp; closures</h2>
+        <form id="form-density" class="stack">
+          <label>
+            Intersection
+            <select id="density-node" required></select>
+          </label>
+          <label>
+            Vehicle density
+            <input type="number" id="density-value" min="0" step="1" value="10" required />
+          </label>
+          <button type="submit" class="btn btn-secondary">Set density</button>
+        </form>
+
+        <form id="form-block" class="stack">
+          <label>
+            From
+            <select id="block-from" required></select>
+          </label>
+          <label>
+            To
+            <select id="block-to" required></select>
+          </label>
+          <div class="btn-row">
+            <button type="submit" name="action" value="block" class="btn btn-danger">Block road</button>
+            <button type="submit" name="action" value="unblock" class="btn btn-secondary">Unblock</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="section section-demo">
+        <h2>Quick start</h2>
+        <p class="hint">Load a sample city grid to try routing immediately.</p>
+        <button type="button" id="btn-demo" class="btn btn-ghost">Load demo city</button>
+        <button type="button" id="btn-clear" class="btn btn-ghost">Clear network</button>
+      </section>
+    </aside>
+
+    <section class="panel panel-map" aria-label="Road network map">
+      <div class="map-header">
+        <h2>City network</h2>
+        <p class="hint">Drag intersections to rearrange. Click a node to inspect signal timing.</p>
+      </div>
+      <div class="map-stage" id="map-stage">
+        <svg id="network-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Interactive road network">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 8 5 L 0 9 z" fill="currentColor" />
+            </marker>
+            <filter id="glow-route">
+              <feGaussianBlur stdDeviation="2.5" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          <g id="edges-layer"></g>
+          <g id="route-layer"></g>
+          <g id="nodes-layer"></g>
+        </svg>
+        <div class="map-empty" id="map-empty">
+          <p>No intersections yet</p>
+          <span>Add intersections on the left, or load the demo city.</span>
+        </div>
+      </div>
+      <div class="inspector" id="inspector" hidden>
+        <p class="inspector-title" id="inspector-name">—</p>
+        <dl class="inspector-meta">
+          <div><dt>ID</dt><dd id="inspector-id">—</dd></div>
+          <div><dt>Density</dt><dd id="inspector-density">—</dd></div>
+          <div><dt>Green light</dt><dd id="inspector-green">—</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <aside class="panel panel-routes">
+      <section class="section">
+        <h2>Find route</h2>
+        <form id="form-route" class="stack">
+          <label>
+            Start
+            <select id="route-from" required></select>
+          </label>
+          <label>
+            Destination
+            <select id="route-to" required></select>
+          </label>
+          <div class="mode-toggle" role="group" aria-label="Route mode">
+            <label class="mode-option">
+              <input type="radio" name="route-mode" value="normal" checked />
+              <span>Normal</span>
+            </label>
+            <label class="mode-option">
+              <input type="radio" name="route-mode" value="emergency" />
+              <span>Emergency</span>
+            </label>
+            <label class="mode-option">
+              <input type="radio" name="route-mode" value="compare" />
+              <span>Compare</span>
+            </label>
+          </div>
+          <button type="submit" class="btn btn-primary btn-route">Calculate route</button>
+        </form>
+      </section>
+
+      <section class="section section-results">
+        <h2>Results</h2>
+        <div id="results" class="results">
+          <p class="results-placeholder">Routes and signal sequences will appear here.</p>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Network list</h2>
+        <div id="network-list" class="network-list">
+          <p class="hint">Empty network.</p>
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
