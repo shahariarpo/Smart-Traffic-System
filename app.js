@@ -124,9 +124,13 @@
     e.active = !block;
     const a = getVertex(src).name;
     const b = getVertex(dest).name;
+    // Also block/unblock the reverse direction if it exists
+    const rev = findEdge(dest, src);
+    if (rev) rev.active = !block;
+    const bothWays = rev ? ` (and ${b} → ${a})` : "";
     return {
       ok: true,
-      msg: `Road ${a} → ${b} is now ${block ? "BLOCKED" : "OPEN"}.`,
+      msg: `Road ${a} → ${b}${bothWays} is now ${block ? "BLOCKED" : "OPEN"}.`,
     };
   }
 
