@@ -682,7 +682,7 @@ select:focus {
 
 .route-card .time {
   font-family: var(--font-mono);
-  font-size: 1.2rem;
+  font-size: 1.6rem;
   font-weight: 500;
   color: var(--ink);
 }

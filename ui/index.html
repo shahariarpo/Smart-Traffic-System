@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Traffic System — Signal &amp; Ambulance Priority</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
   <div class="atmosphere" aria-hidden="true"></div>
 
@@ -45,7 +49,8 @@
         <form id="form-intersection" class="stack">
           <label>
             Intersection name
-            <input type="text" id="input-name" maxlength="63" placeholder="e.g. Main &amp; 5th" required autocomplete="off" />
+            <input type="text" id="input-name" maxlength="63" placeholder="e.g. Main &amp; 5th" required
+              autocomplete="off" />
           </label>
           <button type="submit" class="btn btn-primary">Add intersection</button>
         </form>
@@ -61,7 +66,7 @@
           </label>
           <label>
             Travel time (minutes)
-            <input type="number" id="road-weight" min="0.01" step="0.1" value="5" required />
+            <input type="number" id="road-weight" min="0.01" step="any" value="5" required />
           </label>
           <label class="check">
             <input type="checkbox" id="road-bidir" checked />
@@ -117,7 +122,8 @@
       <div class="map-stage" id="map-stage">
         <svg id="network-svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Interactive road network">
           <defs>
-            <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
+              orient="auto-start-reverse">
               <path d="M 0 1 L 8 5 L 0 9 z" fill="currentColor" />
             </marker>
             <filter id="glow-route">
@@ -140,9 +146,18 @@
       <div class="inspector" id="inspector" hidden>
         <p class="inspector-title" id="inspector-name">—</p>
         <dl class="inspector-meta">
-          <div><dt>ID</dt><dd id="inspector-id">—</dd></div>
-          <div><dt>Density</dt><dd id="inspector-density">—</dd></div>
-          <div><dt>Green light</dt><dd id="inspector-green">—</dd></div>
+          <div>
+            <dt>ID</dt>
+            <dd id="inspector-id">—</dd>
+          </div>
+          <div>
+            <dt>Density</dt>
+            <dd id="inspector-density">—</dd>
+          </div>
+          <div>
+            <dt>Green light</dt>
+            <dd id="inspector-green">—</dd>
+          </div>
         </dl>
       </div>
     </section>
@@ -197,4 +212,5 @@
 
   <script src="app.js"></script>
 </body>
+
 </html>

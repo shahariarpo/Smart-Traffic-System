@@ -211,8 +211,8 @@
       vertices.length === 0
         ? `<option value="">No intersections</option>`
         : vertices
-            .map((v) => `<option value="${v.id}">${escapeHtml(v.name)} (${v.id})</option>`)
-            .join("");
+          .map((v) => `<option value="${v.id}">${escapeHtml(v.name)} (${v.id})</option>`)
+          .join("");
 
     for (const sel of selects) {
       const el = $(sel);
@@ -283,6 +283,44 @@
       x2: b.x - (dx / len) * pad,
       y2: b.y - (dy / len) * pad,
     };
+  }
+
+  function renderEdgesOnly() {
+    const { w, h } = stageSize();
+    svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    const pairSeen = new Set();
+    edgesLayer.innerHTML = "";
+    for (const e of edges) {
+      const a = getVertex(e.src);
+      const b = getVertex(e.dest);
+      if (!a || !b) continue;
+      const key = `${Math.min(e.src, e.dest)}-${Math.max(e.src, e.dest)}`;
+      const reverse = findEdge(e.dest, e.src);
+      const curved = reverse && e.src < e.dest;
+      const offset = reverse ? 10 : 0;
+      const mid = edgeMidpoint(a, b, curved ? offset : -offset);
+      const line = shorten(a, b, 22);
+      const path = reverse
+        ? `M ${line.x1} ${line.y1} Q ${mid.x} ${mid.y} ${line.x2} ${line.y2}`
+        : `M ${line.x1} ${line.y1} L ${line.x2} ${line.y2}`;
+      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      p.setAttribute("d", path);
+      p.setAttribute("class", `edge-line${e.active ? "" : " blocked"}`);
+      if (!reverse || e.src < e.dest) p.setAttribute("marker-end", "url(#arrow)");
+      g.appendChild(p);
+      if (!pairSeen.has(key) || !reverse) {
+        pairSeen.add(key);
+        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        label.setAttribute("class", "edge-weight");
+        label.setAttribute("x", String(mid.x));
+        label.setAttribute("y", String(mid.y - 4));
+        label.setAttribute("text-anchor", "middle");
+        label.textContent = `${e.weight.toFixed(1)}m`;
+        g.appendChild(label);
+      }
+      edgesLayer.appendChild(g);
+    }
   }
 
   function renderMap() {
@@ -445,7 +483,10 @@
     const { w, h } = stageSize();
     v.x = Math.max(28, Math.min(w - 28, p.x));
     v.y = Math.max(28, Math.min(h - 28, p.y));
-    renderMap();
+    // Update the node's transform in-place so pointer capture is not lost
+    drag.el.setAttribute("transform", `translate(${v.x},${v.y})`);
+    // Redraw only edges (they depend on node positions) without rebuilding nodes
+    renderEdgesOnly();
   }
 
   function onNodePointerUp(ev) {
@@ -454,6 +495,8 @@
     ev.currentTarget.removeEventListener("pointermove", onNodePointerMove);
     ev.currentTarget.removeEventListener("pointerup", onNodePointerUp);
     drag = null;
+    // Full re-render now that dragging is done
+    renderMap();
   }
 
   function refresh() {
