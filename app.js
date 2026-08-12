@@ -307,7 +307,7 @@
       const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
       p.setAttribute("d", path);
       p.setAttribute("class", `edge-line${e.active ? "" : " blocked"}`);
-      if (!reverse || e.src < e.dest) p.setAttribute("marker-end", "url(#arrow)");
+      if (!reverse || e.src < e.dest) p.setAttribute("marker-end", e.active ? "url(#arrow)" : "url(#arrow-blocked)");
       g.appendChild(p);
       if (!pairSeen.has(key) || !reverse) {
         pairSeen.add(key);
@@ -347,7 +347,7 @@
       const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
       p.setAttribute("d", path);
       p.setAttribute("class", `edge-line${e.active ? "" : " blocked"}`);
-      if (!reverse || e.src < e.dest) p.setAttribute("marker-end", "url(#arrow)");
+      if (!reverse || e.src < e.dest) p.setAttribute("marker-end", e.active ? "url(#arrow)" : "url(#arrow-blocked)");
       g.appendChild(p);
 
       if (!pairSeen.has(key) || !reverse) {

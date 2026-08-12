@@ -496,9 +496,17 @@ select:focus {
 }
 
 .edge-line.blocked {
-  stroke: var(--stop);
-  stroke-dasharray: 6 5;
-  opacity: 0.75;
+  stroke: #e5222e;
+  stroke-width: 3.5;
+  stroke-dasharray: 8 6;
+  opacity: 1;
+  animation: blocked-pulse 1.8s ease-in-out infinite;
+  color: #e5222e;
+}
+
+@keyframes blocked-pulse {
+  0%, 100% { opacity: 1; stroke-width: 3.5; }
+  50%       { opacity: 0.55; stroke-width: 2.5; }
 }
 
 .edge-weight {
