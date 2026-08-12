@@ -924,4 +924,8 @@ select:focus {
   .inspector-meta {
     grid-template-columns: 1fr 1fr 1fr;
   }
+
+  .inspector {
+    display: none !important;
+  }
 }
