@@ -499,7 +499,6 @@
     ev.currentTarget.removeEventListener("pointermove", onNodePointerMove);
     ev.currentTarget.removeEventListener("pointerup", onNodePointerUp);
     drag = null;
-    // Full re-render now that dragging is done
     renderMap();
   }
 
